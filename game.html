@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    html,body{
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+</style>
+<body>
+    <canvas  id="mycanvas" style="border: 1px solid;"></canvas>
+    <script>
+        let angle=Math.PI/4;
+        const canvas=document.getElementById("mycanvas");
+        const ctx=canvas.getContext("2d");
+        function resizecanvas()
+        {
+            canvas.width=window.innerWidth;
+            canvas.height=window.innerHeight;
+            ctx.beginPath();
+            ctx.fillStyle="red";
+            ctx.arc(canvas.width/2,canvas.height/2,80,0,2*Math.PI);
+            ctx.fill();
+            ctx.strokeStyle="greenyellow";
+            ctx.lineWidth=5;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.fillStyle="orange";
+            ctx.arc(canvas.width/2,canvas.height/2,40,0,2*Math.PI);
+            ctx.fill();
+            ctx.strokeStyle="red";
+            ctx.lineWidth=5;
+            ctx.stroke();
+            drawRotatedRect(canvas.width/2, canvas.height/2, 120, 30, angle);
+            
+        }
+        window.addEventListener("load",resizecanvas);
+        window.addEventListener("resize",resizecanvas)
+        function drawRotatedRect(x, y, w, h, angle) {
+            ctx.save();     
+            ctx.translate(x,y);
+            ctx.rotate(angle);             // save current state
+            ctx.fillStyle = "orange";
+            ctx.fillRect(0, -h/2, w, h); 
+            ctx.restore();               
+        }
+        function drawBullet(bullet_x,bullet_y,r)
+        {
+             ctx.arc(canvas.width/2,canvas.height/2,r,0,2*Math.PI);
+        }
+        window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") {
+        angle += Math.PI/32; // rotate clockwise
+      } else if (e.key === "ArrowLeft") {
+        angle -= Math.PI/32; // rotate counterclockwise
+      }
+      resizecanvas();
+    });
+        
+    </script>
+</body>
+</html>
