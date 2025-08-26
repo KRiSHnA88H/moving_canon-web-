@@ -1,67 +1,162 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<style>
-    html,body{
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-    }
-</style>
-<body>
-    <canvas  id="mycanvas" style="border: 1px solid;"></canvas>
-    <script>
-        let angle=Math.PI/4;
-        const canvas=document.getElementById("mycanvas");
-        const ctx=canvas.getContext("2d");
-        function resizecanvas()
-        {
-            canvas.width=window.innerWidth;
-            canvas.height=window.innerHeight;
-            ctx.beginPath();
-            ctx.fillStyle="red";
-            ctx.arc(canvas.width/2,canvas.height/2,80,0,2*Math.PI);
-            ctx.fill();
-            ctx.strokeStyle="greenyellow";
-            ctx.lineWidth=5;
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.fillStyle="orange";
-            ctx.arc(canvas.width/2,canvas.height/2,40,0,2*Math.PI);
-            ctx.fill();
-            ctx.strokeStyle="red";
-            ctx.lineWidth=5;
-            ctx.stroke();
-            drawRotatedRect(canvas.width/2, canvas.height/2, 120, 30, angle);
-            
+        <!DOCTYPE html>
+        <html lang="en">
+
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+        </head>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+        </style>
+
+        <body>
+            <canvas id="mycanvas" style="border: 1px solid;"></canvas>
+            <script>
+                let angle = Math.PI / 4;
+                let b_radius=4;
+                let v=4;
+                let pressed=false;
+                const bullets=[];
+                const canvas = document.getElementById("mycanvas");
+                const ctx = canvas.getContext("2d");
+                function resizecanvas()
+                {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+                function draw_canon(){
+                     ctx.beginPath();
+                    ctx.fillStyle = "red";
+                    ctx.arc(canvas.width / 2, canvas.height / 2, 80, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.strokeStyle = "greenyellow";
+                    ctx.lineWidth = 5;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.fillStyle = "orange";
+                    ctx.arc(canvas.width / 2, canvas.height / 2, 40, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.strokeStyle = "red";
+                    ctx.lineWidth = 5;
+                    ctx.stroke();
+                    drawRotatedRect(canvas.width / 2, canvas.height / 2, 120, 30, angle);
+                }
+                window.addEventListener("load", resizecanvas);
+                function drawRotatedRect(x, y, w, h, angle) 
+                {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle);             // save current state
+                    ctx.fillStyle = "orange";
+                    ctx.fillRect(0, -h / 2, w, h);
+                    ctx.restore();
+                }
+                
+                window.addEventListener("keydown", (e) => {
+                    if (e.key === "ArrowRight") {
+                        angle += Math.PI / 32; // rotate clockwise
+                        draw_canon();
+
+                    }
+                    else if (e.key === "ArrowLeft") {
+                        angle -= Math.PI / 32; // rotate counterclockwise
+                        draw_canon();
+                    }
+                    else if (e.code === "Space"&&!pressed) {
+                    shootBullet();
+                    draw_canon();
+                    pressed=true;
+                    
+                    }
+                    window.addEventListener("keyup", (e) => {
+                     if (e.code === "Space") {
+                    pressed = false; // reset flag when key is released
+                    }
+                    });
+
+                });
+                function drawBullet()
+                {
+                    ctx.beginPath();
+                    ctx.arc(x,y+30,b_radius,0,Math.PI*2);
+                    ctx.fillStyle="yellow";
+                    ctx.fill();
+                    ctx.closePath();
+                  }
+        function animate() {
+            ctx.fillStyle = "rgba(0,0,0,0.1)"; // lower alpha = longer trail
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            // update position
+            x += v*Math.cos(angle);
+            y += v*Math.sin(angle);
+
+            // bounce off walls
+            if (x + b_radius > canvas.width || x - b_radius < 0) {
+                return;
+            }
+            if (y + b_radius > canvas.height || y - b_radius < 0) {
+                return;
+            }
+
+            requestAnimationFrame(animate); // repeat
         }
-        window.addEventListener("load",resizecanvas);
-        window.addEventListener("resize",resizecanvas)
-        function drawRotatedRect(x, y, w, h, angle) {
-            ctx.save();     
-            ctx.translate(x,y);
-            ctx.rotate(angle);             // save current state
-            ctx.fillStyle = "orange";
-            ctx.fillRect(0, -h/2, w, h); 
-            ctx.restore();               
-        }
-        function drawBullet(bullet_x,bullet_y,r)
-        {
-             ctx.arc(canvas.width/2,canvas.height/2,r,0,2*Math.PI);
-        }
-        window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowRight") {
-        angle += Math.PI/32; // rotate clockwise
-      } else if (e.key === "ArrowLeft") {
-        angle -= Math.PI/32; // rotate counterclockwise
-      }
-      resizecanvas();
-    });
         
-    </script>
-</body>
-</html>
+        function shootBullet() {
+            bullets.push({
+                x: canvas.width/2,
+                y: canvas.height/2,
+                angle: angle
+            });
+        }
+        // Draw a bullet
+        function drawBullet(b) {
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b_radius, 0, 2*Math.PI);
+            ctx.fillStyle = "yellow";
+            ctx.fill();
+            ctx.closePath();
+        }
+        function lightEffect(b) {
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, 100, 0, Math.PI*2);
+            ctx.fillStyle = "rgba(0,255,255,0.05)";
+            ctx.fill();
+        }
+        function animate() {
+            // Draw semi-transparent background for trail
+            ctx.fillStyle = "rgba(0,0,0,0.1)";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+
+            
+
+            // Update bullets
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                // Move bullet
+                b.x += v * Math.cos(b.angle);
+                b.y += v * Math.sin(b.angle);
+
+                // Draw bullet and light
+                drawBullet(b);
+                lightEffect(b);
+
+                // Remove bullet if off screen
+                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                    bullets.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+            </script>
+        </body>
+
+    </html>

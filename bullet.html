@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    html,body{
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+</style>
+<body>
+    <canvas id="myCanvas"></canvas>
+<script>
+
+let canvas = document.getElementById("myCanvas");
+let ctx = canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+let x=canvas.width/2;
+let y=canvas.height/2;
+let b_radius=4;
+let v=4;
+let angle=Math.PI;
+function drawBullet()
+{
+    ctx.beginPath();
+    ctx.arc(x,y,b_radius,0,Math.PI*2);
+    ctx.fillStyle="yellow";
+    ctx.fill();
+    ctx.closePath();
+}
+function animate() {
+    ctx.fillStyle = "rgba(0,0,0,0.1)"; // lower alpha = longer trail
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawBullet();
+    light();
+
+    // update position
+    x += v*Math.cos(angle);
+    y += v*Math.sin(angle);
+
+    // bounce off walls
+    if (x + b_radius > canvas.width || x - b_radius < 0) {
+        return;
+    }
+    if (y + b_radius > canvas.height || y - b_radius < 0) {
+        return;
+    }
+
+    requestAnimationFrame(animate); // repeat
+}
+function light()
+{
+
+    ctx.beginPath();
+    ctx.arc(x,y,100,0,Math.PI*2);
+    ctx.fillStyle="rgba(0,255,255,0.05)";
+    ctx.fill();
+    
+
+}
+window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") {
+                angle += Math.PI / 32; // rotate clockwise
+            }
+            else if (e.key === "ArrowLeft") {
+                angle -= Math.PI / 32; // rotate counterclockwise
+            }
+            
+            resizecanvas();
+        });
+
+
+animate(); // start animation
+
+</script>
+
+</body>
+</html>
