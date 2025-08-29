@@ -7,17 +7,31 @@
     <title>Document</title>
 </head>
 <style>
+    /* default margin remove */
     html,
     body {
         margin: 0;
         padding: 0;
         overflow: hidden;
     }
+    p {
+    margin: 0;
+    padding: 0;
+}
+
 </style>
 
 <body>
+    <p id="score" style="color: aqua;background-color: black;"></p>
     <canvas id="mycanvas" style="border: 1px solid;"></canvas>
+     <button id="restartBtn"
+            style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+               padding:15px 30px; font-size:20px; display:none; cursor:pointer;">
+            Restart Game
+        </button>
     <script>
+        let animationId;
+        let score = 0;
         let angle = Math.PI / 4;
         let b_radius = 4;
         let v = 4;
@@ -79,12 +93,12 @@
 
         window.addEventListener("keydown", (e) => {
             if (e.key === "ArrowRight") {
-                angle += Math.PI / 32; // rotate clockwise
+                angle += Math.PI / 30; // rotate clockwise
                 draw_canon();
 
             }
             else if (e.key === "ArrowLeft") {
-                angle -= Math.PI / 32; // rotate counterclockwise
+                angle -= Math.PI / 30; // rotate counterclockwise
                 draw_canon();
             }
             else if (e.code === "Space" && !pressed) {
@@ -110,20 +124,20 @@
 
         document.addEventListener("wheel", function (event) {
             if (event.deltaY < 0) {
-                angle += Math.PI / 32;
+                angle += Math.PI / 30;
                 draw_canon();
             }
             else {
 
-                angle -= Math.PI / 32;
+                angle -= Math.PI / 30;
                 draw_canon();
             }
         });
 
         function shootBullet() {
             bullets.push({
-                x: canvas.width / 2+Math.cos(angle)*120,
-                y: canvas.height / 2+Math.sin(angle)*120,
+                x: canvas.width / 2 + Math.cos(angle) * 120,
+                y: canvas.height / 2 + Math.sin(angle) * 120,
                 angle: angle
             });
         }
@@ -140,7 +154,8 @@
             let dx = bullet.x - enemy.x;
             let dy = bullet.y - enemy.y;
             let dist = Math.sqrt(dx * dx + dy * dy);
-            return dist < b_radius * 2+10; // bullet radius + enemy radius
+            return dist < b_radius * 2 + 10+1; // bullet radius + enemy radius
+            // 1-----> is genrosity factor
         }
 
 
@@ -158,8 +173,38 @@
             ctx.fillStyle = "rgba(0,255,255,0.05)";
             ctx.fill();
         }
-        setInterval(addEnemies, 1000);
+        function gameOver() {
+            // stop game loop (do not call animate again)
+            cancelAnimationFrame(animationId);
+
+            // show Game Over text
+            ctx.fillStyle = "white";
+            ctx.font = "40px Arial";
+            ctx.fillText("Game Over!", canvas.width / 2 - 100, canvas.height / 2 - 50);
+
+            // show restart button
+            clearInterval(setintervalid);
+            document.getElementById("restartBtn").style.display = "block";
+        }
+
+        function restartGame() {
+            // reset everything
+            score = 0;
+            bullets.length = 0;
+            enemys.length = 0;
+            angle = Math.PI / 4;
+
+            // hide restart button
+            document.getElementById("restartBtn").style.display = "none";
+            setintervalid = setInterval(addEnemies, 1000);
+
+            // restart loop
+            animate();
+        }
+
+        let setintervalid=setInterval(addEnemies, 1000);
         function animate() {
+
             // Draw semi-transparent background for trail
             ctx.fillStyle = "rgba(0,0,0,0.1)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -185,31 +230,41 @@
                 }
                 for (let j = enemys.length - 1; j >= 0; j--) {
                     if (isColliding(b, enemys[j])) {
+                        score += 100;
                         bullets.splice(i, 1);  // remove bullet
                         enemys.splice(j, 1);   // remove enemy
                         break;                 // bullet gone, stop checking further
                     }
                 }
             }
-                for (let i = enemys.length - 1; i >= 0; i--) {
-                    let b = enemys[i];
-                    // move enemy toward center
-                    let dx = canvas.width / 2 - b.x;
-                    let dy = canvas.height / 2 - b.y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    b.x += (dx / dist) * v_enemies;
-                    b.y += (dy / dist) * v_enemies;
-                    drawEnemies(b);
+            for (let i = enemys.length - 1; i >= 0; i--) {
+                let b = enemys[i];
+                // move enemy toward center
+                let dx = canvas.width / 2 - b.x;
+                let dy = canvas.height / 2 - b.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                b.x += (dx / dist) * v_enemies;
+                b.y += (dy / dist) * v_enemies;
+                drawEnemies(b);
 
 
-                    if (dist <= 80) { // reached center
-                        enemys.splice(i, 1);
-                    }
+                if (dist <= 80) {
+                    score -= 100;// reached center
+                    enemys.splice(i, 1);
                 }
-                requestAnimationFrame(animate);
             }
+            document.getElementById("score").innerHTML = "Score:- " + score;
+            if (score <= -100) {
+                gameOver();
+                return; // stop loop
+            }
+            animationId= requestAnimationFrame(animate);
+        }
+        document.getElementById("score").innerHTML = "Score:- " + score;
 
-            animate();
+        animate();
+        document.getElementById("restartBtn").addEventListener("click", restartGame);
+
     </script>
 </body>
 
