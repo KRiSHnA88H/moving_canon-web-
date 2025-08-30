@@ -46,28 +46,36 @@
         background: radial-gradient(circle at center, #222, #000);
     }
 
-    /* Restart button */
+    #mycanvas {
+        display: block;
+        background: radial-gradient(circle at center, #000 70%, #111);
+        border: 2px solid #333;
+    }
+
+    /* Restart Button */
     #restartBtn {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        padding: 15px 30px;
-        font-size: 22px;
+        padding: 15px 40px;
+        font-size: 28px;
         font-weight: bold;
-        border: none;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #00f, #0ff);
-        color: white;
+        color: lime;
+        background: black;
+        border: 3px solid lime;
+        border-radius: 12px;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        transition: transform 0.2s, background 0.3s;
         display: none;
+        box-shadow: 0 0 20px lime, 0 0 40px green;
+        text-shadow: 0 0 10px lime;
+        transition: transform 0.2s, box-shadow 0.2s;
+        z-index: 3;
     }
 
     #restartBtn:hover {
         transform: translate(-50%, -50%) scale(1.1);
-        background: linear-gradient(135deg, #0ff, #00f);
+        box-shadow: 0 0 30px lime, 0 0 60px greenyellow;
     }
 </style>
 
@@ -221,7 +229,7 @@
             bullets.length = 0;
             enemys.length = 0;
             angle = Math.PI / 4;
-            enemyspawnspeed = 1000;  
+            enemyspawnspeed = 1000;
             v_enemies = 1;
             // hide restart button
             document.getElementById("restartBtn").style.display = "none";
