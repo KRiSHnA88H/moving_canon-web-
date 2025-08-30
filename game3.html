@@ -7,17 +7,67 @@
     <title>Document</title>
 </head>
 <style>
-    /* default margin remove */
+    /* Reset defaults */
     html,
     body {
         margin: 0;
         padding: 0;
         overflow: hidden;
+        background-color: #111;
+        /* dark background for contrast */
+        font-family: Arial, sans-serif;
     }
 
-    p {
+    /* Score + HighScore display */
+    #score,
+    #highScore {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 6px 12px;
         margin: 0;
-        padding: 0;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.6);
+        font-size: 18px;
+        font-weight: bold;
+        color: aqua;
+        user-select: none;
+    }
+
+    #highScore {
+        top: 40px;
+        color: gold;
+    }
+
+    /* Canvas centered */
+    #mycanvas {
+        display: block;
+        border: 2px solid #444;
+        background: radial-gradient(circle at center, #222, #000);
+    }
+
+    /* Restart button */
+    #restartBtn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 15px 30px;
+        font-size: 22px;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #00f, #0ff);
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        transition: transform 0.2s, background 0.3s;
+        display: none;
+    }
+
+    #restartBtn:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+        background: linear-gradient(135deg, #0ff, #00f);
     }
 </style>
 
@@ -33,9 +83,11 @@
     <audio id="explosion" src="explosion.mp3"></audio>
     <script>
         let highScore = localStorage.getItem("highScore") || 0;
+        let gamerunning = true;
         let animationId;
         let score = 0;
         let angle = Math.PI / 4;
+        let enemyspawnspeed = 1000;
         let b_radius = 4;
         let v = 4;
         let v_enemies = 1;
@@ -44,6 +96,7 @@
         const enemys = [];
         const canvas = document.getElementById("mycanvas");
         const ctx = canvas.getContext("2d");
+
         function randomPosition(minDistance = 200) {
             let x, y, dx, dy, dist;
             do {
@@ -95,7 +148,7 @@
             ctx.stroke();
             drawRotatedRect(canvas.width / 2, canvas.height / 2, 120, 30, angle);
         }
-        window.addEventListener("load", resizecanvas);
+
         function drawRotatedRect(x, y, w, h, angle) {
             ctx.save();
             ctx.translate(x, y);
@@ -104,51 +157,6 @@
             ctx.fillRect(0, -h / 2, w, h);
             ctx.restore();
         }
-
-        window.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowRight") {
-                angle += Math.PI / 30; // rotate clockwise
-                draw_canon();
-
-            }
-            else if (e.key === "ArrowLeft") {
-                angle -= Math.PI / 30; // rotate counterclockwise
-                draw_canon();
-            }
-            else if (e.code === "Space" && !pressed) {
-                shootBullet();
-                playShoot();
-                draw_canon();
-                pressed = true;
-
-            }
-            window.addEventListener("keyup", (e) => {
-                if (e.code === "Space") {
-                    pressed = false; // reset flag when key is released
-                }
-            });
-
-        });
-
-        document.addEventListener("mousedown", (e) => {
-            if (e.button == 0) {
-                shootBullet();
-                draw_canon();
-                playShoot();
-            }
-        });
-
-        document.addEventListener("wheel", function (event) {
-            if (event.deltaY < 0) {
-                angle += Math.PI / 30;
-                draw_canon();
-            }
-            else {
-
-                angle -= Math.PI / 30;
-                draw_canon();
-            }
-        });
 
         function shootBullet() {
             bullets.push({
@@ -191,34 +199,51 @@
         }
         function gameOver() {
             // stop game loop (do not call animate again)
+            gamerunning = false;
             cancelAnimationFrame(animationId);
 
             // show Game Over text
-            ctx.fillStyle = "white";
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
             ctx.font = "40px Arial";
             ctx.fillText("Game Over!", canvas.width / 2 - 100, canvas.height / 2 - 50);
 
             // show restart button
             clearInterval(setintervalid);
+            clearInterval(increasedifficultyid)
             document.getElementById("restartBtn").style.display = "block";
         }
 
         function restartGame() {
             // reset everything
+            gamerunning = true;
             score = 0;
             bullets.length = 0;
             enemys.length = 0;
             angle = Math.PI / 4;
-
+            enemyspawnspeed = 1000;  
+            v_enemies = 1;
             // hide restart button
             document.getElementById("restartBtn").style.display = "none";
-            setintervalid = setInterval(addEnemies, 1000);
-
+            setintervalid = setInterval(addEnemies, enemyspawnspeed);
+            increasedifficultyid = setInterval(increasedifficulty, 10000);
             // restart loop
             animate();
         }
 
-        let setintervalid = setInterval(addEnemies, 1000);
+        function increasedifficulty() {
+            if (enemyspawnspeed > 120)
+                enemyspawnspeed -= 100;
+            clearInterval(setintervalid);
+            setintervalid = setInterval(addEnemies, enemyspawnspeed);
+
+
+            v_enemies = v_enemies + .5
+        }
+
+
+        let setintervalid = setInterval(addEnemies, enemyspawnspeed);
+        let increasedifficultyid = setInterval(increasedifficulty, 10000)
         function animate() {
 
             // Draw semi-transparent background for trail
@@ -270,6 +295,7 @@
                     enemys.splice(i, 1);
                 }
             }
+
             document.getElementById("score").innerHTML = "Score:- " + score;
             if (score <= -100) {
                 gameOver();
@@ -286,7 +312,57 @@
         }
 
         animate();
+
+        window.addEventListener("keydown", (e) => {
+            if (!gamerunning) return;
+            if (e.key === "ArrowRight") {
+                angle += Math.PI / 30; // rotate clockwise
+                draw_canon();
+
+            }
+            else if (e.key === "ArrowLeft") {
+                angle -= Math.PI / 30; // rotate counterclockwise
+                draw_canon();
+            }
+            else if (e.code === "Space" && !pressed) {
+                shootBullet();
+                playShoot();
+                draw_canon();
+                pressed = true;
+
+            }
+            window.addEventListener("keyup", (e) => {
+                if (e.code === "Space") {
+                    pressed = false; // reset flag when key is released
+                }
+            });
+
+        });
+
+        document.addEventListener("mousedown", (e) => {
+            if (!gamerunning) return
+            if (e.button == 0) {
+                shootBullet();
+                draw_canon();
+                playShoot();
+            }
+        });
+
+        document.addEventListener("wheel", function (event) {
+            if (!gamerunning) return;
+            if (event.deltaY < 0) {
+                angle += Math.PI / 30;
+                draw_canon();
+            }
+            else {
+
+                angle -= Math.PI / 30;
+                draw_canon();
+            }
+        });
+        window.addEventListener("load", resizecanvas);
         document.getElementById("restartBtn").addEventListener("click", restartGame);
+
 
     </script>
 </body>

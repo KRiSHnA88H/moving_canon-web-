@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Defend The Canon</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at center, #000 70%, #111);
+      color: #eee;
+      font-family: 'Trebuchet MS', sans-serif;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 60px;
+      color: red;
+      text-shadow: 0 0 20px greenyellow, 2px 2px 5px black;
+      margin-top: 40px;
+      letter-spacing: 2px;
+    }
+
+    .description {
+      max-width: 800px;
+      margin: 20px auto;
+      font-size: 20px;
+      line-height: 1.6;
+      color: #ccc;
+      text-shadow: 0 0 5px black;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: greenyellow;
+      font-size: 32px;
+      text-shadow: 0 0 5px black;
+    }
+
+    ol {
+      max-width: 700px;
+      margin: 10px auto;
+      padding-left: 0;
+      list-style: none;
+      text-align: left;
+      font-size: 20px;
+    }
+
+    ol li {
+      background: rgba(0, 0, 0, 0.6);
+      margin: 8px 0;
+      padding: 10px 15px;
+      border-left: 4px solid greenyellow;
+      border-radius: 6px;
+      color: #eee;
+      text-shadow: 0 0 3px black;
+    }
+
+    button {
+      margin: 50px auto;
+      display: block;
+      font-size: 36px;
+      padding: 15px 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, burlywood, peru);
+      color: greenyellow;
+      font-weight: bold;
+      border: 2px solid greenyellow;
+      cursor: pointer;
+      box-shadow: 0 0 15px greenyellow;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px lime;
+    }
+  </style>
+</head>
+<body>
+  <h1>Defend The Canon</h1>
+
+  <p class="description">
+    You are alone in the darkness, surrounded by strange orbs that close in from every side.  
+    Your bullets are your only source of light.  
+    But beware — the very enemies you destroy may harm you as much as they heal you.  
+    Balance caution with courage, and survive as long as you can.
+  </p>
+
+  <h2>Rules</h2>
+  <ol>
+    <li>Shooting each orb gives you <strong>+100 points</strong>.</li>
+    <li>When enemies reach you, they take away <strong>100 points</strong>.</li>
+    <li>If your score drops to <strong>-100</strong>, the game is over.</li>
+    <li>Try to beat your own high score every time.</li>
+  </ol>
+
+  <h2>Controls</h2>
+  <ol>
+    <li><strong>Right Arrow / Scroll Up</strong> → Rotate cannon clockwise.</li>
+    <li><strong>Left Arrow / Scroll Down</strong> → Rotate cannon counter-clockwise.</li>
+    <li><strong>Space / Left-Click</strong> → Shoot.</li>
+  </ol>
+
+  <button onclick="location.href='game2.html'" id="gameStartButton">Start Game</button>
+</body>
+</html>
